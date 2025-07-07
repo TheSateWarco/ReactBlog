@@ -4,12 +4,11 @@ function Entry(props) {
   return (
     <div className="term">
       <dt>
-        <span className="emoji" role="img" aria-label="Tense Biceps">
-          {props.emoji}
-        </span>
-        <span>{props.name}</span>
+        <span>{props.title}</span>
       </dt>
-      <dd>{props.description}</dd>
+      <dd>{props.name}</dd>
+      <dd>{props.date}</dd>
+      <dd>{props.body}</dd>
     </div>
   );
 }

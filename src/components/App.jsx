@@ -1,6 +1,10 @@
-import React from "react";
+
+import React, { useState, useEffect } from "react";
+import BlogEntry  from "../blogs";
 import Entry from "./Entry";
-import blogs from "../blogs";
+import SignIn from "./SignIn";
+import SignUp from "./SignUp";
+
 
 //1. Extract the repeated parts of the App into a Entry component.
 //2. Use props to make the Entry component render different data.
@@ -17,28 +21,53 @@ import blogs from "../blogs";
 //    date_created:new Date(),
 //    creator_user_id:"elite001"}
 // }
-
 function createEntry(post) {
   return (
     <Entry
-    key={post.blog_id}
+      key={post.blog_id}
       name={post.creator_name}
       title={post.title}
       body={post.body}
-      date={post.date_created.toLocaleString()}
+      date={new Date(post.date_created).toLocaleString()}
     />
   );
 }
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [blogs, setBlogs] = useState([]);
+
+  // This function runs when the user signs in
+  const handleSignIn = (userData) => {
+    setUser(userData);
+    // ❌ Do not fetch blogs here if you're using useEffect
+  };
+
+  // ✅ This useEffect runs AFTER user logs in
+useEffect(() => {
+  fetch("http://localhost:5000/api/blogs")  // Ensure this is the exact route in Express
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      console.log("Fetched blogs:", data);
+      setBlogs(data);
+    })
+    .catch(err => console.error("Failed to fetch blogs:", err));
+}, []);
+
   return (
     <div>
-      <h1>
-        <span>blog</span>
-      </h1>
-      <dl className="dictionary">{blogs.map(createEntry)}</dl>
+      {!user ? (
+        <SignIn onSignIn={handleSignIn} />
+      ) : (
+        <>
+          <h1>Welcome, {user.name}</h1>
+          <dl className="blog">{blogs.map(createEntry)}</dl>
+        </>
+      )}
     </div>
   );
 }
-
 export default App;
